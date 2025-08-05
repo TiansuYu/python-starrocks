@@ -18,7 +18,6 @@ from sqlalchemy import exc, schema as sa_schema
 from sqlalchemy.dialects.mysql.pymysql import MySQLDialect_pymysql
 from sqlalchemy.dialects.mysql.base import MySQLDDLCompiler, MySQLTypeCompiler, MySQLCompiler, MySQLIdentifierPreparer
 from sqlalchemy.sql import sqltypes
-from sqlalchemy.util import topological
 from sqlalchemy import util
 from sqlalchemy import log
 from sqlalchemy.engine import reflection
@@ -229,15 +228,17 @@ class StarRocksDDLCompiler(MySQLDDLCompiler):
         if 'DISTRIBUTED_BY' in opts:
             table_opts.append(f'DISTRIBUTED BY HASH({opts["DISTRIBUTED_BY"]})')
 
+        if 'PARTITION_BY' in opts:
+            table_opts.append(f'PARTITION BY {opts["PARTITION_BY"]}')
+
+        if 'ORDER_BY' in opts:
+            table_opts.append(f'ORDER BY {opts["ORDER_BY"]}')
+
         if "COMMENT" in opts:
             comment = self.sql_compiler.render_literal_value(
                 opts["COMMENT"], sqltypes.String()
             )
             table_opts.append(f"COMMENT {comment}")
-
-        # ToDo - Partition
-        # ToDo - Distribution
-        # ToDo - Order by
 
         if "PROPERTIES" in opts:
             props = ",\n".join([f'\t"{k}"="{v}"' for k, v in opts["PROPERTIES"]])
