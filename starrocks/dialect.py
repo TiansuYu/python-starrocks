@@ -225,14 +225,14 @@ class StarRocksDDLCompiler(MySQLDDLCompiler):
         if 'PRIMARY_KEY' in opts:
             table_opts.append(f'PRIMARY KEY({opts["PRIMARY_KEY"]})')
 
-        if 'DISTRIBUTED_BY' in opts:
+        if "PARTITION_BY" in opts:
+            table_opts.append(f"PARTITION BY {opts['PARTITION_BY']}")
+
+        if "DISTRIBUTED_BY" in opts:
             table_opts.append(f'DISTRIBUTED BY HASH({opts["DISTRIBUTED_BY"]})')
 
-        if 'PARTITION_BY' in opts:
-            table_opts.append(f'PARTITION BY {opts["PARTITION_BY"]}')
-
-        if 'ORDER_BY' in opts:
-            table_opts.append(f'ORDER BY {opts["ORDER_BY"]}')
+        if "ORDER_BY" in opts:
+            table_opts.append(f"ORDER BY ({opts['ORDER_BY']})")
 
         if "COMMENT" in opts:
             comment = self.sql_compiler.render_literal_value(
